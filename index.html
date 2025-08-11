@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <img src="pixel-buddy.jpeg.jpeg" id="pixel-buddy" alt="Pixel Buddy"/>
+    <div id="speech-bubble">Let's level up buddy</div>
+    <div id = "music-player">
+        <img src="vinyl-spin.gif" id="vinyl-spin" alt="Spinning Vinyl"/>
+        <audio id="bgmusic" loop>
+             <source src = "bg-music.mp3" type="audio/mp3">
+             Your browser does not support the audio element
+        </audio>
+        <button id="PlayMusic">▶ Play</button>
+        <button id="PauseMusic">⏸ Pause</button>
+    </div>
+    <input type="text" id="taskInput" placeholder="Enter the task you wanna do"/>
+    <button id="clickbar">Log task</button>
+    <button id="clearall">Clear tasks</button>
+    <button id="themechanger">toggle Light/Dark mode</button>
+    
+    <p id="task-stats">0/0 tasks completed</p>
+
+    <ul id="tasklist"></ul>
+    <script>
+        document.getElementById("clickbar").addEventListener("click", function(){
+        let task = document.getElementById("taskInput").value;
+        if(task.trim()!==""){
+            //adding task
+            let li = document.createElement("li");
+            li.classList.add("fade-in");
+
+            //checkbox
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.style.marginRight = "10px";
+
+            checkbox.addEventListener("change", function(){
+                li.classList.toggle("done");
+                updateTaskcount();
+                saveTasks();
+            });
+            li.appendChild(checkbox);
+            li.appendChild(document.createTextNode(task));
+
+            
+            //delete button
+            let delbtn = document.createElement("button");
+            delbtn.textContent = "❌";
+            delbtn.style.marginLeft = "10px";
+
+            delbtn.addEventListener("click", function(){
+                li.remove();
+                updateTaskcount();
+            });
+            li.appendChild(delbtn);
+            document.getElementById("tasklist").appendChild(li);
+            updateTaskcount();
+            saveTasks();
+
+            let editbtn = document.createElement("button");
+            editbtn.textContent = "✏";
+            editbtn.style.marginLeft = "10px";
+
+            editbtn.addEventListener("click", function(){
+                let newText = prompt("Edit your task:", li.childNodes[1].textContent);
+                if(newText!==null && newText.trim()!==""){
+                    li.childNodes[1].textContent = newText;
+                    saveTasks();
+                }
+            });
+            li.appendChild(editbtn);
+
+        }
+        document.getElementById("taskInput").value="";
+        });
+        document.getElementById("clearall").addEventListener("click", function(){
+            if(confirm("Are you sure you want to delete all tasks")){
+            document.getElementById("tasklist").innerHTML="";
+            updateTaskcount();
+            saveTasks();
+            }
+        });
+        document.getElementById("themechanger").addEventListener("click",function(){
+            document.body.classList.toggle("dark-mode");
+        })
+        document.getElementById("pixel-buddy").addEventListener("click", function(){
+            alert("Hey let's level up buddy!");
+        });
+        document.getElementById("PlayMusic").addEventListener("click", function(){
+            document.getElementById("bgmusic").play();
+        });
+        document.getElementById("PauseMusic").addEventListener("click",function(){
+            document.getElementById("bgmusic").pause();
+        });
+        function updateTaskcount(){
+            const allTasks = document.querySelectorAll("#tasklist li")
+            const completedTasks = document.querySelectorAll("#tasklist li input[type='checkbox']:checked");
+            document.getElementById("task-stats").textContent = `${completedTasks.length}/${allTasks.length} tasks completed`;
+
+        }
+        function saveTasks(){
+            const tasks = [];
+
+            document.querySelectorAll("#tasklist li").forEach(li => {
+
+                tasks.push({
+                    text: li.childNodes[1].textContent,
+                    done: li.querySelector("input[type='checkbox']").checked
+                });
+            });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+        window.addEventListener("load", function () {
+    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    savedTasks.forEach(function(task) {
+        let li = document.createElement("li");
+        li.classList.add("fade-in");
+
+        // Create checkbox
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.style.marginRight = "10px";
+        checkbox.checked = task.done;
+
+        checkbox.addEventListener("change", function () {
+            li.classList.toggle("done");
+            updateTaskcount();
+            saveTasks();
+        });
+        
+
+        li.appendChild(checkbox);
+        li.appendChild(document.createTextNode(task.text));
+
+        // Create delete button
+        let delbtn = document.createElement("button");
+        delbtn.textContent = "❌";
+        delbtn.style.marginLeft = "10px";
+
+        delbtn.addEventListener("click", function () {
+            li.remove();
+            updateTaskcount();
+            saveTasks();
+        });
+
+        li.appendChild(delbtn);
+        document.getElementById("tasklist").appendChild(li);
+    });
+
+    updateTaskcount();
+});
+
+           
+    </script>
+</body>
+</html>
